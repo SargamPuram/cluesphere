@@ -1,0 +1,2 @@
+This is a simple test file.  
+It’s used to test metadata extraction on non-binary/plain text files.
