@@ -1,12 +1,16 @@
 from flask import Flask
 from flask_cors import CORS
 from dotenv import load_dotenv 
-import os # <-- 1. ADD THIS IMPORT
+import os
 
 load_dotenv()
 
 app = Flask(__name__)
-CORS(app)
+
+# --- THIS IS THE UPDATE ---
+# Be more specific. Only allow requests from your live Vercel app
+# and your local machine (for testing).
+CORS(app, origins=["https://cluesphere.vercel.app", "http://localhost:3000"])
 
 # Register blueprints
 from routes.log_analysis import log_analysis_bp
@@ -22,7 +26,6 @@ app.register_blueprint(steganography_bp)
 app.register_blueprint(pcap_bp)         
 
 if __name__ == '__main__':
-    # --- 2. UPDATE THIS BLOCK ---
     port = int(os.getenv("PORT", 5000))
     debug_mode = os.getenv("DEBUG", "True").lower() == "true"
     app.run(host='0.0.0.0', port=port, debug=debug_mode)
