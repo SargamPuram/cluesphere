@@ -16,8 +16,8 @@ export default function PCAPAnalysis() {
     formData.append('file', file);
 
     try {
-      // --- THIS IS THE UPDATED LINE ---
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/pcap-analysis`, formData, {
+      // --- THIS IS THE UPDATED LINE (HARDCODED) ---
+      const response = await axios.post(`https://cluesphere.onrender.com/pcap-analysis`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       setResults(response.data);

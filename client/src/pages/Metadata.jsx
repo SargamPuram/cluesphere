@@ -14,8 +14,8 @@ export default function Metadata() {
     formData.append('file', file);
 
     try {
-      // --- THIS IS THE UPDATED LINE ---
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/metadata`, formData, {
+      // --- THIS IS THE UPDATED LINE (HARDCODED) ---
+      const response = await axios.post(`https://cluesphere.onrender.com/metadata`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 

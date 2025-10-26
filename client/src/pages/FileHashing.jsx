@@ -17,8 +17,8 @@ export default function FileHashing() {
     const endpoint = mode === 'store' ? '/analyze-and-store' : '/file-hashing';
 
     try {
-      // --- THIS IS THE UPDATED LINE ---
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}${endpoint}`, formData, {
+      // --- THIS IS THE UPDATED LINE (HARDCODED) ---
+      const response = await axios.post(`https://cluesphere.onrender.com${endpoint}`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
 
