@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import axios from 'axios';
 import UploadForm from '../components/UploadForm';
-import LogResultsCard from '../components/LogResultsCard'; // <-- CHANGE THIS
+import LogResultsCard from '../components/LogResultsCard'; 
 
 export default function LogAnalysis() {
   const [results, setResults] = useState(null);
@@ -16,7 +16,8 @@ export default function LogAnalysis() {
     formData.append('file', file);
 
     try {
-      const response = await axios.post('http://localhost:5000/log-analysis', formData, {
+      // --- THIS IS THE UPDATED LINE ---
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/log-analysis`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       setResults(response.data); // <-- Store the whole response
@@ -46,7 +47,7 @@ export default function LogAnalysis() {
           </div>
         )}
 
-        <LogResultsCard results={results} error={error} /> {/* <-- CHANGE THIS */}
+        <LogResultsCard results={results} error={error} /> 
       </div>
     </div>
   );

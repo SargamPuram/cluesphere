@@ -16,7 +16,8 @@ export default function Steganography() {
     formData.append('file', file);
 
     try {
-      const response = await axios.post('http://localhost:5000/steganography', formData, {
+      // --- THIS IS THE UPDATED LINE ---
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/steganography`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       setResults(response.data);
