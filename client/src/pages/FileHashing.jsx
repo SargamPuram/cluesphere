@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import axios from 'axios';
 import UploadForm from '../components/UploadForm';
-import ResultsCard from '../components/ResultsCard';
 import FileResultsCard from '../components/FileResultsCard';
 
 export default function FileHashing() {
@@ -11,6 +10,7 @@ export default function FileHashing() {
 
   const handleSubmit = async (file) => {
     setIsLoading(true);
+    setResults(null); // Clear previous results
     const formData = new FormData();
     formData.append('file', file);
 
@@ -21,14 +21,17 @@ export default function FileHashing() {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
 
+      // Unified CIA explanation based on the technique
+      const ciaExplanation = "File Hashing relates to **Integrity** (verifying file authenticity), **Confidentiality** (identifying known malicious files), and **Availability** (ensuring critical system files are untampered).";
+
       setResults({
         data: response.data,
-        ciaExplanation: "This relates to Integrity because it verifies file integrity by comparing cryptographic hashes. Any modification to the file would change its hash value, allowing detection of tampering."
+        ciaExplanation: ciaExplanation
       });
     } catch (error) {
       console.error("Analysis error:", error);
       setResults({
-        data: { error: "Analysis failed" },
+        data: { error: error.response?.data?.error || "Analysis failed due to a network or server issue." },
         ciaExplanation: "Error occurred during analysis"
       });
     } finally {
@@ -51,11 +54,11 @@ export default function FileHashing() {
           <label className="block text-sm font-medium text-gray-700">Analysis Mode</label>
           <div className="mt-2 flex space-x-4">
             <label className="flex items-center">
-              <input type="radio" checked={mode === 'verify'} onChange={() => setMode('verify')} className="mr-2" />
+              <input type="radio" name="analysis_mode" checked={mode === 'verify'} onChange={() => setMode('verify')} className="mr-2 text-blue-600 border-gray-300 focus:ring-blue-500" />
               Verify File (Check against known hashes)
             </label>
             <label className="flex items-center">
-              <input type="radio" checked={mode === 'store'} onChange={() => setMode('store')} className="mr-2" />
+              <input type="radio" name="analysis_mode" checked={mode === 'store'} onChange={() => setMode('store')} className="mr-2 text-blue-600 border-gray-300 focus:ring-blue-500" />
               Store as Known Good
             </label>
           </div>

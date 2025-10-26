@@ -4,6 +4,8 @@ import LogAnalysis from './pages/LogAnalysis'
 import Home from './pages/Home'
 import FileHashing from './pages/FileHashing'
 import Metadata from './pages/Metadata'
+import Steganography from './pages/Steganography'
+import PCAPAnalysis from './pages/PCAPAnalysis'
 
 function App() {
   return (
@@ -17,6 +19,9 @@ function App() {
             <Route path="/log-analysis" element={<LogAnalysis />} />
             <Route path="/file-hashing" element={<FileHashing />} />
             <Route path="/metadata" element={<Metadata />} />
+            <Route path="/steganography" element={<Steganography />} />
+            <Route path="/pcap" element={<PCAPAnalysis />} />
+            
           </Routes>
         </div>
       </div>

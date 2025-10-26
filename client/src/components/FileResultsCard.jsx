@@ -1,5 +1,3 @@
-
-
 export default function FileResultsCard({ results }) {
   if (!results) return null;
 
@@ -69,13 +67,30 @@ export default function FileResultsCard({ results }) {
 
       {/* Hash Check */}
       {data.hash_check && (
-        <div className="mb-6 p-4 bg-green-50 rounded-lg">
-          <h4 className="font-medium text-green-800 mb-2">Hash Check</h4>
-          <p className="text-green-700">Known File: {data.hash_check.known_file ? 'Yes' : 'No'}</p>
-          <p className="text-green-700">Matched Filename: {data.hash_check.matched_filename}</p>
-          <p className="text-green-700">
-            Matched Hash ({data.hash_check.hash_type}): {formatHash(data.hash_check.matched_hash)}
+        <div className="mb-6 p-4 rounded-lg" 
+             style={{ backgroundColor: data.hash_check.known_file ? '#D1FAE5' : '#FEF3C7' }}>
+          <h4 className="font-medium mb-2" 
+              style={{ color: data.hash_check.known_file ? '#065F46' : '#92400E' }}>
+            Hash Check Status
+          </h4>
+          <p className="text-sm" 
+             style={{ color: data.hash_check.known_file ? '#065F46' : '#92400E' }}>
+            Known File: **{data.hash_check.known_file ? 'Yes (MATCHED)' : 'No (NEW/UNKNOWN)'}**
           </p>
+          {data.hash_check.known_file ? (
+            <>
+              <p className="text-sm" 
+                 style={{ color: data.hash_check.known_file ? '#065F46' : '#92400E' }}>
+                Matched Filename: {data.hash_check.matched_filename}
+              </p>
+              <p className="text-sm" 
+                 style={{ color: data.hash_check.known_file ? '#065F46' : '#92400E' }}>
+                Matched Hash ({data.hash_check.hash_type}): {formatHash(data.hash_check.matched_hash)}
+              </p>
+            </>
+          ) : (
+            <p className="text-sm text-red-700 mt-1">{data.hash_check.message || "File hash not found in the database of known files."}</p>
+          )}
         </div>
       )}
 

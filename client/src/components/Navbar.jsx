@@ -16,7 +16,8 @@ export default function Navbar() {
               File Hashing
             </Link>
             <Link to="/metadata" className="text-white hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium">Metadata Analysis</Link>
-
+            <Link to="/steganography" className="text-white hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium">Steganography</Link>
+            <Link to="/pcap" className="text-white hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium">PCAP Analysis</Link>
           </div>
         </div>
       </div>

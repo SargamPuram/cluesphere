@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import axios from 'axios';
 import UploadForm from '../components/UploadForm';
-import ResultsCard from '../components/ResultsCard';
 import MetadataResultCard from '../components/MetadataResultCard';
 
 export default function Metadata() {
@@ -10,6 +9,7 @@ export default function Metadata() {
 
   const handleSubmit = async (file) => {
     setIsLoading(true);
+    setResults(null); // Clear previous results
     const formData = new FormData();
     formData.append('file', file);
 
@@ -20,14 +20,14 @@ export default function Metadata() {
 
       // Wrap your data into results so ResultsCard can display it
       setResults({
-        data: response.data,
+        data: response.data, // IMPORTANT: data is nested here
         ciaExplanation:
-          'Metadata analysis supports Confidentiality and Integrity by revealing hidden file attributes and potential data leakage risks.',
+          'Metadata analysis supports **Confidentiality** and **Integrity** by revealing hidden file attributes, potential authors, timestamps, and data leakage risks.',
       });
     } catch (error) {
       console.error('Metadata analysis error:', error);
       setResults({
-        data: { error: 'Metadata analysis failed' },
+        data: { error: error.response?.data?.error || 'Metadata analysis failed' },
         ciaExplanation: 'Error occurred during metadata analysis.',
       });
     } finally {
@@ -41,7 +41,7 @@ export default function Metadata() {
         <div className="border-b border-gray-200 pb-5">
           <h1 className="text-2xl font-bold text-gray-900">File Metadata Analysis</h1>
           <p className="mt-2 text-gray-600">
-            Upload a file to extract its metadata, such as size, type, and hidden attributes.
+            Upload a file to extract its metadata, such as size, type, and hidden attributes (EXIF, PDF Info).
           </p>
         </div>
 

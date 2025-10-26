@@ -9,7 +9,7 @@ __pycache__/
 
 # Virtual Environment
 venv/
-env/
+.env/
 .venv/
 
 # Flask uploads and other runtime files
