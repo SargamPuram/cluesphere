@@ -6,23 +6,6 @@ import os
 
 steganography_bp = Blueprint('steganography', __name__)
 
-# Helper function to convert binary to string
-def binary_to_string(binary_data):
-    # Split binary string into 8-bit chunks
-    byte_chunks = [binary_data[i:i+8] for i in range(0, len(binary_data), 8)]
-    ascii_chars = []
-    for byte in byte_chunks:
-        if len(byte) == 8:
-            # Check for a null terminator (8 zeros), a common way to end hidden messages
-            if byte == '00000000':
-                break
-            try:
-                ascii_chars.append(chr(int(byte, 2)))
-            except ValueError:
-                # This happens if a non-printable character is found
-                pass 
-    return "".join(ascii_chars)
-
 @steganography_bp.route('/steganography', methods=['POST'])
 def detect_steganography():
     if 'file' not in request.files:
@@ -37,18 +20,47 @@ def detect_steganography():
         pixels = image.load()
         width, height = image.size
         
-        extracted_bits = ""
-        
-        # Iterate through each pixel to extract the LSB
-        for y in range(height):
-            for x in range(width):
-                r, g, b, *a = pixels[x, y] # Use *a to handle images with/without alpha channel
-                
-                extracted_bits += bin(r)[-1]
-                extracted_bits += bin(g)[-1]
-                extracted_bits += bin(b)[-1]
+        byte_chunk = []
+        ascii_chars = []
+        found_terminator = False
 
-        hidden_text = binary_to_string(extracted_bits)
+        # Iterate through each pixel
+        for y in range(height):
+            if found_terminator:
+                break
+            for x in range(width):
+                if found_terminator:
+                    break
+                
+                # Get pixel data, handle both RGB and RGBA
+                pixel_data = pixels[x, y]
+                
+                # We only care about the R, G, B channels
+                for c in pixel_data[:3]: 
+                    
+                    # Add the last bit (as a '0' or '1' char) to our chunk
+                    byte_chunk.append(bin(c)[-1])
+
+                    # Once we have 8 bits, process them
+                    if len(byte_chunk) == 8:
+                        byte_str = "".join(byte_chunk)
+                        
+                        # Check for the null terminator
+                        if byte_str == '00000000':
+                            found_terminator = True
+                            break # Stop processing channels
+                        
+                        try:
+                            # Convert the 8-bit string to an integer, then to a character
+                            ascii_chars.append(chr(int(byte_str, 2)))
+                        except ValueError:
+                            # Not a printable character, just ignore it
+                            pass
+                        
+                        # Reset the chunk for the next byte
+                        byte_chunk = []
+
+        hidden_text = "".join(ascii_chars)
 
         cia_analysis = {
             "confidentiality": "This tool attempts to break the confidentiality of a hidden message.",
@@ -65,8 +77,11 @@ def detect_steganography():
         else:
             return jsonify({
                 "message": "No obvious hidden data found via LSB analysis.",
-                 "cia_analysis": cia_analysis
+                "cia_analysis": cia_analysis
             })
 
     except Exception as e:
+        # We also catch memory errors here, just in case
+        if isinstance(e, MemoryError):
+            return jsonify({"error": "Analysis failed: Image is too large and caused a memory error."}), 500
         return jsonify({"error": f"Steganography analysis failed: {str(e)}"}), 500
