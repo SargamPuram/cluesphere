@@ -5,6 +5,7 @@ import os
 import re
 from collections import Counter
 import google.generativeai as genai
+import json
 
 log_analysis_bp = Blueprint('log_analysis', __name__)
 
@@ -66,6 +67,53 @@ def generate_gemini_report(summary_data):
     except Exception as e:
         return f"Failed to generate Gemini report. Error: {str(e)}"
 
+# (This goes after your generate_gemini_report function)
+
+def generate_cia_analysis(summary_data):
+    if not GEMINI_ENABLED or not gemini_model:
+        return {
+            "confidentiality": "AI analysis disabled.",
+            "integrity": "AI analysis disabled.",
+            "availability": "AI analysis disabled."
+        }
+
+    prompt = f"""
+    Analyze the following log summary for its potential impact on the CIA triad (Confidentiality, Integrity, Availability).
+    **Log Summary:**
+    - Total Suspicious Entries: {summary_data['total_suspicious']}
+    - Top Threats: {summary_data['top_threats']}
+    **Instructions:**
+    Based *only* on the summary, provide a one-sentence analysis for each component.
+    Return *only* a valid JSON object in this exact format:
+    {{"confidentiality": "Your analysis...", "integrity": "Your analysis...", "availability": "Your analysis..."}}
+    """
+    
+    try:
+        response = gemini_model.generate_content(prompt)
+        
+        # Clean the response to find the JSON
+        # The AI might return ```json\n{...}\n```
+        json_match = re.search(r'\{.*\}', response.text, re.DOTALL)
+        if not json_match:
+            raise Exception("No JSON object found in AI response.")
+            
+        json_text = json_match.group(0)
+        cia_object = json.loads(json_text)
+        
+        # Ensure all keys are present
+        if 'confidentiality' not in cia_object or 'integrity' not in cia_object or 'availability' not in cia_object:
+            raise Exception("JSON object is missing required keys.")
+            
+        return cia_object
+
+    except Exception as e:
+        print(f"Error generating CIA analysis: {e}")
+        return {
+            "confidentiality": "Failed to generate Confidentiality analysis.",
+            "integrity": "Failed to generate Integrity analysis.",
+            "availability": "Failed to generate Availability analysis."
+        }
+
 @log_analysis_bp.route('/log-analysis', methods=['POST'])
 def analyze_log():
     if 'file' not in request.files: return jsonify({"error": "No file uploaded"}), 400
@@ -92,16 +140,25 @@ def analyze_log():
         summary_message = f"Found {len(suspicious_activities)} suspicious log entries across {len(threat_counts)} threat categories."
 
         summary_data_for_ai = { "total_suspicious": len(suspicious_activities), "top_threats": top_threats, "top_source_ips": top_source_ips }
+# --- (THIS IS THE CHANGE) ---
+        
+        # 1. Generate the main report (you already do this)
         gemini_report = generate_gemini_report(summary_data_for_ai)
+        
+        # 2. Generate the CIA analysis
+        cia_data = generate_cia_analysis(summary_data_for_ai)
 
+        # 3. Add both to your response
         return jsonify({
             "analysis_summary": summary_message,
             "total_suspicious": len(suspicious_activities),
             "top_threats": top_threats,
             "top_source_ips": top_source_ips,
             "suspicious_activities": suspicious_activities[:100],
-            "gemini_report": gemini_report
+            "gemini_report": gemini_report,
+            "cia_analysis": cia_data  # <-- ADD THIS LINE
         })
-
+        # --- (END OF CHANGE) ---
+        
     except Exception as e:
         return jsonify({"error": f"Analysis failed: {str(e)}"}), 500
