@@ -14,7 +14,7 @@ log_analysis_bp = Blueprint('log_analysis', __name__)
 # 1. DELETE YOUR OLD, SHARED KEY FROM GOOGLE AI STUDIO.
 # 2. CREATE A BRAND-NEW KEY.
 # 3. PASTE THE NEW KEY BETWEEN THE QUOTATION MARKS BELOW.
-api_key = 'AIzaSyCddsnciPg6WmiQG83YHWZHIZKC33wdTu0'
+api_key = 'AIzaSyDZveV-oTAESCHJCFe7HZ2qsNRHGxOVHSU'
 
 gemini_model = None
 GEMINI_ENABLED = False
